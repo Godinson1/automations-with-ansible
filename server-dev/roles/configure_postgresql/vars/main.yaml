@@ -1,0 +1,4 @@
+db_user: postgres
+db_password: postgres-password
+db_name: test_db
+db_source: 0.0.0.0/0

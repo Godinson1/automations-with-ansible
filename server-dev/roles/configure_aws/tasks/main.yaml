@@ -1,0 +1,33 @@
+- name: Check aws folder stats
+  ansible.builtin.stat:
+    path: /home/ubuntu/aws
+  register: stat_result
+
+- name: Check aws pre-existing installation
+  ansible.builtin.stat:
+    path: /usr/local/aws-cli/v2/current
+  register: aws_stat_result
+
+- name: Download AWS CLI Installer  
+  ansible.builtin.unarchive:
+    src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+    dest: /home/ubuntu
+    remote_src: yes
+  register: aws_installer
+  when: not stat_result.stat.exists
+
+- name: Install AWS CLI
+  ansible.builtin.command: ./aws/install
+  when: not aws_stat_result.stat.exists
+
+- name: Configure AWS.
+  ansible.builtin.blockinfile:
+    path: /home/ubuntu/.aws/credentials
+    append_newline: true
+    prepend_newline: true
+    create: true
+    block: |
+      [{{ aws_profile }}]
+      aws_access_key_id = {{ aws_access_key }}
+      aws_secret_access_key = {{ aws_secret_key }}
+      region = {{ aws_region }}
